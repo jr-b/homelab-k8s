@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wyze-bridge
+  namespace: wyze-bridge
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: wyze-bridge
+  template:
+    metadata:
+      labels:
+        app: wyze-bridge
+    spec:
+      containers:
+      - name: wyze-bridge
+        image: ghcr.io/idisposable/docker-wyze-bridge:3.12.3
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: wyze-bridge-config
+        - secretRef:
+            name: wyze-bridge-secrets
+        volumeMounts:
+        - name: wyze-cache
+          mountPath: /config
+      volumes:
+      - name: wyze-cache
+        emptyDir: {}

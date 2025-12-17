@@ -1,0 +1,198 @@
+mqtt:
+  host: mosquitto.frigate
+  port: 1883
+  topic_prefix: frigate
+  user: "${FRIGATE_MQTT_USER}"
+  password: "${FRIGATE_MQTT_PASSWORD}"
+database:
+  path: /config/frigate.db
+ui:
+  timezone: America/New_York
+timestamp_style:
+  position: "tr"
+  format: "%m/%d/%Y %H:%M:%S"
+  color:
+    red: 255
+    green: 255
+    blue: 255
+snapshots:
+  enabled: true
+  timestamp: true
+  bounding_box: true
+  retain:
+    default: 14
+motion:
+  threshold: 45
+  contour_area: 20
+record:
+  enabled: true
+  retain:
+    days: 3
+    mode: all
+# Object detection is now disabled by default in 0.16.0+
+detect:
+  enabled: true
+detectors:
+  cpu:
+    type: cpu
+ffmpeg:
+  input_args: preset-rtsp-generic
+# Re-adding go2rtc with Nest cameras via Home Assistant API
+# Using the correct echo:curl syntax from official documentation
+go2rtc:
+  streams:
+    # Nest cameras using direct Nest integration
+    backyard-nest:
+    - "nest:?client_id={FRIGATE_NEST_CLIENT_ID}&client_secret={FRIGATE_NEST_CLIENT_SECRET}&refresh_token={FRIGATE_NEST_REFRESH_TOKEN}&project_id={FRIGATE_NEST_PROJECT_ID}&device_id=AVPHwEsZ6SReCC2ZtlYVvLI6UNQZlzwKQjWv1pkYzQ1NztwVsr1NqV1iYNb-3StU8yO6-xiZVnirwztAMMqnd0KRlGHyJKc&protocols=WEB_RTC&video=h264&audio=opus"
+    garage-inside-nest:
+    - "nest:?client_id={FRIGATE_NEST_CLIENT_ID}&client_secret={FRIGATE_NEST_CLIENT_SECRET}&refresh_token={FRIGATE_NEST_REFRESH_TOKEN}&project_id={FRIGATE_NEST_PROJECT_ID}&device_id=AVPHwEs6xJSbcP_WS7rsPKtaG8GdwxdrIcuIewmed2hsPvmh58WggGkDixnwnifuchUSGZB6eQaxQu7t-CNJZL-An6qiEG8&protocols=WEB_RTC&video=h264&audio=opus"
+    garage-outside-nest:
+    - "nest:?client_id={FRIGATE_NEST_CLIENT_ID}&client_secret={FRIGATE_NEST_CLIENT_SECRET}&refresh_token={FRIGATE_NEST_REFRESH_TOKEN}&project_id={FRIGATE_NEST_PROJECT_ID}&device_id=AVPHwEsLUBYvPpbrvkZE3ir7qdib-rPCuK5gOUjGNAsPpI-JKhu2tv0tmTY2j5zhLmyLt9Mxa6ZkQTjyT1BrP_EdF523vZI&protocols=WEB_RTC&video=h264&audio=opus"
+    front-porch-nest:
+    - "nest:?client_id={FRIGATE_NEST_CLIENT_ID}&client_secret={FRIGATE_NEST_CLIENT_SECRET}&refresh_token={FRIGATE_NEST_REFRESH_TOKEN}&project_id={FRIGATE_NEST_PROJECT_ID}&device_id=AVPHwEtoyaiDgotGDqDsbmu6D40w0Rb8ZLrrjMfxdXgXuD-39y9pPzfDXFLQpCC2ZC3-t8nYsizVoaUTXOshmma5yPr7n3s&protocols=WEB_RTC&video=h264&audio=opus"
+    living-room-nest:
+    - "nest:?client_id={FRIGATE_NEST_CLIENT_ID}&client_secret={FRIGATE_NEST_CLIENT_SECRET}&refresh_token={FRIGATE_NEST_REFRESH_TOKEN}&project_id={FRIGATE_NEST_PROJECT_ID}&device_id=AVPHwEv5tLwvH71E3vUblbN0ZG1t8gDbTk4Gqcj7MuHGMniuTScOiemnu3ux2aji7VV_x-cBBbWe6u2zXU2lmOcUdxsLjnc&protocols=WEB_RTC&video=h264&audio=opus"
+    kitchen-nest:
+    - "nest:?client_id={FRIGATE_NEST_CLIENT_ID}&client_secret={FRIGATE_NEST_CLIENT_SECRET}&refresh_token={FRIGATE_NEST_REFRESH_TOKEN}&project_id={FRIGATE_NEST_PROJECT_ID}&device_id=AVPHwEuNP2NFY_qy6L9xdYaaMkjwAKiOWBL7c1VaveNbDlguT_nY0u_Ibcx14EtpzDOOdRigBA21vDzWEa_5t7gJl-nH0Hc&protocols=WEB_RTC&video=h264&audio=opus"
+cameras:
+  # Wyze camera via wyze-bridge
+  shed:
+    enabled: true
+    ffmpeg:
+      inputs:
+      - path: rtsp://192.168.10.46:8554/shed
+        roles:
+        - detect
+        - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    live:
+      height: 1080
+  # Add Nest cameras via go2rtc restream
+  backyard:
+    enabled: true
+    ffmpeg:
+      input_args: preset-rtsp-restream-low-latency
+      inputs:
+      - path: rtsp://127.0.0.1:8554/backyard-nest?video
+        roles:
+        - detect
+        - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    live:
+      height: 1080
+    objects:
+      track:
+      - person
+      - dog
+      - cat
+      - car
+  garage-inside:
+    enabled: true
+    ffmpeg:
+      input_args: preset-rtsp-restream-low-latency
+      inputs:
+      - path: rtsp://127.0.0.1:8554/garage-inside-nest?video
+        roles:
+        - detect
+        - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    live:
+      height: 1080
+    objects:
+      track:
+      - person
+      - car
+  garage-outside:
+    enabled: true
+    ffmpeg:
+      input_args: preset-rtsp-restream-low-latency
+      inputs:
+      - path: rtsp://127.0.0.1:8554/garage-outside-nest?video
+        roles:
+        - detect
+        - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    live:
+      height: 1080
+    objects:
+      track:
+      - person
+      - car
+  front-porch:
+    enabled: true
+    ffmpeg:
+      input_args: preset-rtsp-restream-low-latency
+      inputs:
+      - path: rtsp://127.0.0.1:8554/front-porch-nest?video
+        roles:
+        - detect
+        - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    live:
+      height: 1080
+    objects:
+      track:
+      - person
+      - dog
+      - cat
+      - car
+  living-room:
+    enabled: true
+    ffmpeg:
+      input_args: preset-rtsp-restream-low-latency
+      inputs:
+      - path: rtsp://127.0.0.1:8554/living-room-nest?video
+        roles:
+        - detect
+        - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    live:
+      height: 1080
+    objects:
+      track:
+      - person
+      - dog
+      - cat
+  kitchen:
+    enabled: true
+    ffmpeg:
+      input_args: preset-rtsp-restream-low-latency
+      inputs:
+      - path: rtsp://127.0.0.1:8554/kitchen-nest?video
+        roles:
+        - detect
+        - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    live:
+      height: 1080
+    objects:
+      track:
+      - person

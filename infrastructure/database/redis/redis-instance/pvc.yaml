@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-redis-master-0
+  namespace: redis-instance
+  labels:
+    app: redis
+    component: master
+  annotations:
+    # Longhorn backup settings - Critical tier for database
+    longhorn.io/recurring-job-source: enabled
+    longhorn.io/recurring-job-group: critical
+    volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn

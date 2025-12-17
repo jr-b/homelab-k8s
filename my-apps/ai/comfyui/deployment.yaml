@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comfyui
+  namespace: comfyui
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comfyui
+  template:
+    metadata:
+      labels:
+        app: comfyui
+    spec:
+      # Node selector for GPU nodes
+      nodeSelector:
+        feature.node.kubernetes.io/pci-0300_10de.present: "true"
+      runtimeClassName: nvidia
+      priorityClassName: gpu-workload-preemptible
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      - key: "gpu"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      containers:
+      - name: comfyui
+        # Image from https://github.com/YanWenKun/ComfyUI-Docker/tree/main/cu128-megapak
+        # renovate: datasource=docker depName=yanwk/comfyui-boot versioning=regex:^cu128-megapak-(?<major>\d{4})(?<minor>\d{2})(?<patch>\d{2})$
+        image: yanwk/comfyui-boot:cu126-megapak-20251211
+        imagePullPolicy: IfNotPresent
+        workingDir: /root
+        ports:
+        - containerPort: 8188
+        env:
+        - name: CLI_ARGS
+          value: "--fast --listen 0.0.0.0 --port 8188"
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: comfyui-secrets
+              key: HF_TOKEN
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "2"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "80Gi"
+            cpu: "16"
+            nvidia.com/gpu: "1"
+        volumeMounts:
+        # Single storage volume at /root - container handles internal structure
+        - name: comfyui-storage
+          mountPath: /root
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8188
+          initialDelaySeconds: 300 # Increased for large downloads on first start
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8188
+          initialDelaySeconds: 1500 # Increased for large downloads on first start
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: comfyui-storage
+        persistentVolumeClaim:
+          claimName: comfyui-storage

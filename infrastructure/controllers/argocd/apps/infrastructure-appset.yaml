@@ -1,0 +1,84 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/mitchross/talos-argocd-proxmox.git
+      revision: main
+      directories:
+      - path: infrastructure/controllers/cert-manager
+      - path: infrastructure/controllers/external-dns
+      - path: infrastructure/controllers/gpu-priority-classes
+      - path: infrastructure/controllers/intel-device-plugins
+      - path: infrastructure/controllers/node-feature-discovery
+      - path: infrastructure/controllers/nvidia-device-plugin
+      - path: infrastructure/controllers/nvidia-gpu-operator
+      - path: infrastructure/networking/cloudflared
+      - path: infrastructure/networking/coredns
+      - path: infrastructure/networking/gateway
+      - path: infrastructure/storage/container-registry
+      - path: infrastructure/storage/csi-driver-nfs
+      - path: infrastructure/storage/csi-driver-smb
+      - path: infrastructure/storage/local-storage
+      - path: infrastructure/storage/openebs
+      - path: infrastructure/database/*/*
+      - path: infrastructure/crds
+  template:
+    metadata:
+      name: '{{path.basename}}'
+      labels:
+        app.kubernetes.io/part-of: infrastructure
+    spec:
+      project: infrastructure
+      revisionHistoryLimit: 3
+      source:
+        repoURL: https://github.com/mitchross/talos-argocd-proxmox.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true
+        - RespectIgnoreDifferences=true
+        - ApplyOutOfSyncOnly=true
+        - Replace=false
+        - IgnoreMissingTemplate=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      ignoreDifferences:
+      - group: gateway.networking.k8s.io
+        kind: HTTPRoute
+        jsonPointers:
+        - /spec/rules/0/backendRefs/0/group
+        - /spec/rules/0/backendRefs/0/kind
+        - /spec/rules/0/backendRefs/0/weight
+      - group: gateway.networking.k8s.io
+        kind: Gateway
+        jsonPointers:
+        - /status
+      - group: postgresql.cnpg.io
+        kind: Cluster
+        jsonPointers:
+        - /status
+        - /metadata/generation
+      - group: external-secrets.io
+        kind: ExternalSecret
+        jsonPointers:
+        - /status
+

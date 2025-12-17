@@ -1,0 +1,45 @@
+# It's recommended to manage all Longhorn settings via this file
+# to maintain a declarative GitOps workflow.
+# Settings applied manually via the UI will not be reflected here and can be
+# overwritten during a Helm upgrade.
+defaultSettings:
+  # NOTE: Longhorn 1.10 consolidates settings for V1/V2 data engines. Use either
+  # a single scalar or a JSON string with per-engine values like {"v1":"...","v2":"..."} when needed.
+  defaultDataPath: "/var/lib/longhorn"
+  storageMinimalAvailablePercentage: "25"
+  storageOverProvisioningPercentage: "100"
+  allowRecurringJobWhileVolumeDetached: "true"
+  replicaAutoBalance: "best-effort"
+  # Ensure all new volumes automatically get the "default" backup schedule
+  # (Daily snapshots + Weekly backups)
+  default-recurring-job-group: "default"
+  # Ensure new consolidated settings that can be per-engine stay simple scalars for V1-only clusters
+  # These avoid parse errors like strconv.ParseBool/Int seen in manager logs when JSON strings are provided.
+  # Note: Use plain boolean for fastReplicaRebuildEnabled, not JSON format
+  fastReplicaRebuildEnabled: "true"
+  engineReplicaTimeout: '{"v1":"8"}'
+  # Reduced from 12 to 8 for homelab - still provides good performance with less CPU reservation
+  guaranteedInstanceManagerCPU: "8"
+# -- Disables the pre-upgrade check job. This is recommended for GitOps tools
+# like ArgoCD to prevent sync failures.
+preUpgradeChecker:
+  jobEnabled: false
+persistence:
+  # -- Specifies the default Longhorn StorageClass.
+  defaultClass: true
+  # -- Default number of replicas for volumes.
+  # OPTIMIZED: Reduced from 3 to 2 for homelab
+  # - Still provides redundancy (can lose 1 node)
+  # - 50% less IO overhead (2 writes instead of 3)
+  # - 50% less network traffic between nodes
+  # - 33% more usable storage (50% vs 33% efficiency)
+  # - Should reduce worker IO pressure from 37-42% to ~25-30%
+  defaultClassReplicaCount: 2
+  # -- Default filesystem type.
+  defaultFsType: ext4
+  # -- Reclaim policy for the default storage class.
+  reclaimPolicy: Delete
+# -- Disable the default ingress creation, as you are managing it with a
+# separate HTTPRoute resource.
+ingress:
+  enabled: false

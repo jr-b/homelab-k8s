@@ -1,0 +1,18 @@
+tempo:
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo-traces
+        endpoint: tempo-minio.monitoring.svc:9000
+        access_key: tempo
+        secret_key: temposecret123
+        insecure: true
+  retention: 72h
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

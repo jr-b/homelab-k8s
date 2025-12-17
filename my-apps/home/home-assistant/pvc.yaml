@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-config
+  namespace: home-assistant
+  labels:
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/component: home-automation
+    app.kubernetes.io/part-of: smart-home
+    # Critical data tier ensures hourly snapshots and daily backups
+    data-tier: critical
+  annotations:
+    volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn

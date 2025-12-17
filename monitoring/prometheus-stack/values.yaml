@@ -1,0 +1,255 @@
+# Enhanced kube-prometheus-stack configuration
+# Optimized for production workloads with security and performance considerations
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+# CRD Configuration - Essential for proper functioning
+crds:
+  enabled: true
+# Prometheus Configuration
+prometheus:
+  enabled: true
+  prometheusSpec:
+    # Data retention and storage
+    retention: 15d
+    retentionSize: 15GB
+    walCompression: true
+    # Storage configuration with Longhorn
+    storageSpec:
+      volumeClaimTemplate:
+        metadata:
+          annotations:
+            # Longhorn backup settings - Important tier for monitoring data
+            longhorn.io/recurring-job-source: enabled
+            longhorn.io/recurring-job-group: important
+            volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 20Gi
+    # Resource allocation
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+    # Scrape configuration
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    scrapeTimeout: 10s
+    # Enable service discovery for dynamic targets
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    # Additional scrape configs for custom monitoring
+    additionalScrapeConfigs:
+      # NOTE: Frigate metrics are scraped via ServiceMonitor if configured
+      # External scraping via HTTPS is commented out to avoid cert issues
+      # - job_name: 'frigate'
+      #   metrics_path: /api/metrics
+      #   scheme: https
+      #   static_configs:
+      #     - targets: ['frigate.jrb.nz']
+      #   tls_config:
+      #     insecure_skip_verify: false
+      []
+    # Remote write configuration (for external storage if needed)
+    remoteWrite: []
+    # Alerting configuration
+    alerting:
+      alertmanagers:
+        - namespace: prometheus-stack
+          name: kube-prometheus-stack-alertmanager
+          port: 9093
+    caching:
+      enabled: true
+      cacheSize: 500MB
+      cacheTTL: 10m
+# Alertmanager Configuration
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    strategy:
+      type: Recreate
+    # Storage for alertmanager
+    storage:
+      volumeClaimTemplate:
+        metadata:
+          annotations:
+            # Longhorn backup settings - Important tier for alerting data
+            longhorn.io/recurring-job-source: enabled
+            longhorn.io/recurring-job-group: important
+            volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+    # Resource allocation
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+    # Retention
+    retention: 72h
+    # Configuration for alert routing (placeholder)
+    configSecret: ""
+# Grafana Configuration
+grafana:
+  enabled: true
+  deploymentStrategy:
+    type: Recreate
+  # Admin credentials
+  adminPassword: "prom-operator"
+  # Persistence
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    size: 5Gi
+    accessModes:
+      - ReadWriteOnce
+    annotations:
+      # Longhorn backup settings - Important tier for dashboard data
+      longhorn.io/recurring-job-source: enabled
+      longhorn.io/recurring-job-group: important
+      volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+  # Resource allocation
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 472
+    fsGroup: 472
+  # Enable plugins
+  plugins: []
+  # Default dashboards
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: UTC
+  # Additional data sources configuration
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.loki-stack.svc.cluster.local
+      jsonData:
+        timeout: 60
+        maxLines: 1000
+        derivedFields:
+          - datasourceUid: prometheus-uid
+            matcherRegex: "(?:logger=rpc\\.server|report).*?(?:traceID|trace_id)=([a-f\\d]+)"
+            name: TraceID
+            url: "$${__value.raw}"
+    - name: Tempo
+      type: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc:3100
+  # Grafana configuration
+  grafana.ini:
+    server:
+      root_url: https://grafana.jrb.nz
+    security:
+      allow_embedding: true
+      cookie_secure: true
+      strict_transport_security: true
+    analytics:
+      reporting_enabled: false
+      check_for_updates: false
+    snapshots:
+      external_enabled: false
+    explore:
+      enabled: true
+    feature_toggles:
+      enable: correlations
+# Node Exporter Configuration
+# Enable for comprehensive node-level metrics
+nodeExporter:
+  enabled: true
+  hostRootFsMount:
+    enabled: true
+    mountPropagation: HostToContainer
+  # Resource allocation
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 180Mi
+# kube-state-metrics Configuration
+kubeStateMetrics:
+  enabled: true
+  # Resource allocation
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+# Prometheus Operator Configuration
+prometheusOperator:
+  enabled: true
+  # Resource allocation
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+# Additional monitoring components
+kubelet:
+  enabled: true
+  serviceMonitor:
+    interval: 30s
+# Talos hides these bind addresses, so we disable scraping to avoid target down alerts
+kubeApiServer:
+  enabled: true
+  serviceMonitor:
+    interval: 30s
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+coreDns:
+  enabled: true
+  serviceMonitor:
+    interval: 30s
+kubeDns:
+  enabled: false

@@ -1,0 +1,116 @@
+# Cilium Helm Values for Talos Proxmox Production Cluster
+# Cluster Configuration
+cluster:
+  name: talos-prod-cluster
+  id: 1
+
+# Kubernetes API Configuration (kubePrism via SideroLink)
+k8sServiceHost: localhost
+k8sServicePort: "7445"
+
+# Kube-proxy Replacement
+kubeProxyReplacement: true
+
+# Talos-specific Security Context (required for init containers)
+securityContext:
+  capabilities:
+    ciliumAgent:
+    - CHOWN
+    - KILL
+    - NET_ADMIN
+    - NET_RAW
+    - IPC_LOCK
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - DAC_OVERRIDE
+    - FOWNER
+    - SETGID
+    - SETUID
+    cleanCiliumState:
+    - NET_ADMIN
+    - SYS_ADMIN
+    - SYS_RESOURCE
+
+# Talos-specific cgroup configuration
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+# Routing Configuration
+routingMode: native
+autoDirectNodeRoutes: true
+ipv4NativeRoutingCIDR: 10.14.0.0/16
+
+# IPAM Configuration
+ipam:
+  mode: kubernetes
+
+# Enable Socket-level Load Balancing (critical for pod-to-service connectivity)
+socketLB:
+  enabled: true
+  hostNamespaceOnly: false
+
+# Enable Bandwidth Manager for better TCP performance
+bandwidthManager:
+  enabled: true
+  bbr: true  # Enable BBR congestion control
+
+# BPF Host Routing
+bpf:
+  masquerade: true
+  # Connection tracking improvements for better session handling
+  ctTcpTimeout: 21600  # 6 hours (default is 6 hours but explicit is better)
+  ctAnyTimeout: 3600   # 1 hour for non-TCP connections
+
+# L2 Announcements for LoadBalancer Services
+l2announcements:
+  enabled: true
+  # Increase lease duration to reduce API calls
+  leaseDuration: "15s"
+  leaseRenewDeadline: "5s"
+  leaseRetryPeriod: "2s"
+
+# Enable XDP acceleration (REQUIRED for Talos L2 announcements)
+# Fixes kernel ARP dropping issue between XDP and TC in Talos 1.9+
+# See: https://github.com/cilium/cilium/discussions/36829
+loadBalancer:
+  acceleration: best-effort
+
+# Increase API rate limits for L2 announcer lease management
+# Formula: QPS = #services * (1 / leaseRenewDeadline)
+# With 15 services: 15 * (1/5) = 3 QPS, so 20 QPS gives headroom
+k8sClientRateLimit:
+  qps: 20
+  burst: 40
+
+# Gateway API Support
+gatewayAPI:
+  enabled: true
+  # CRITICAL FIX: Use Local externalTrafficPolicy to preserve source IP
+  # and enable proper connection tracking. This fixes intermittent connectivity.
+  externalTrafficPolicy: Local
+  # Enable session affinity for consistent routing
+  sessionAffinity: true
+  sessionAffinityTimeoutSeconds: 10800  # 3 hours
+
+# Hubble (Observability)
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+
+# Operator Configuration
+operator:
+  # CRITICAL FIX: Run 2 replicas for HA - single replica is a SPOF
+  replicas: 2
+  # Ensure replicas run on different nodes
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            io.cilium/app: operator
+        topologyKey: kubernetes.io/hostname

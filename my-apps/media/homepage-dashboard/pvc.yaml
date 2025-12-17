@@ -1,0 +1,23 @@
+# PV definition removed
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homepage-config-pvc
+  namespace: homepage-dashboard
+  labels:
+    app: homepage
+    type: config
+  annotations:
+    # Longhorn backup settings - Standard tier for dashboard configuration
+    longhorn.io/recurring-job-source: enabled
+    longhorn.io/recurring-job-group: standard
+    volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: longhorn
+

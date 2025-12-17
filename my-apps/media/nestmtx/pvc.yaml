@@ -1,0 +1,19 @@
+# PV definition removed
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nestmtx-storage-pvc
+  namespace: nestmtx
+  labels:
+    app: nestmtx
+    type: storage
+  annotations:
+    volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn
+
