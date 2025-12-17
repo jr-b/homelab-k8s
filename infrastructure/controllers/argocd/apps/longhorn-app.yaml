@@ -12,7 +12,7 @@ metadata:
 spec:
   project: infrastructure
   source:
-    repoURL: https://github.com/mitchross/talos-argocd-proxmox.git
+    repoURL: https://github.com/jr-b/homelab-k8s.git
     targetRevision: main
     path: infrastructure/storage/longhorn
   destination:

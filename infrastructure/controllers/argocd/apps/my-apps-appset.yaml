@@ -8,7 +8,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/mitchross/talos-argocd-proxmox.git
+      repoURL: https://github.com/jr-b/homelab-k8s.git
       revision: main
       directories:
       - path: my-apps/*/*
@@ -19,7 +19,7 @@ spec:
       project: my-apps
       revisionHistoryLimit: 3
       source:
-        repoURL: https://github.com/mitchross/talos-argocd-proxmox.git
+        repoURL: https://github.com/jr-b/homelab-k8s.git
         targetRevision: main
         path: '{{path}}'
       destination:

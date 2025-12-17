@@ -11,7 +11,7 @@ metadata:
 spec:
   description: "Infrastructure components like controllers, networking, and storage."
   sourceRepos:
-  - https://github.com/mitchross/talos-argocd-proxmox.git
+  - https://github.com/jr-b/homelab-k8s.git
   - https://git.deuxfleurs.fr/Deuxfleurs/garage.git
   destinations:
   - namespace: '*'
@@ -32,7 +32,7 @@ metadata:
 spec:
   description: "User-facing applications."
   sourceRepos:
-  - https://github.com/mitchross/talos-argocd-proxmox.git
+  - https://github.com/jr-b/homelab-k8s.git
   destinations:
   - namespace: '*'
     server: https://kubernetes.default.svc
@@ -52,7 +52,7 @@ metadata:
 spec:
   description: "Monitoring and observability stack (Prometheus, Grafana, Loki)."
   sourceRepos:
-  - https://github.com/mitchross/talos-argocd-proxmox.git
+  - https://github.com/jr-b/homelab-k8s.git
   destinations:
   - namespace: '*'
     server: https://kubernetes.default.svc

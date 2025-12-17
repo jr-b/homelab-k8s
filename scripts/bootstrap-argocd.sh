@@ -46,7 +46,7 @@ fi
 # Step 6: Apply root application to start GitOps self-management
 #echo ""
 #echo "🔄 Deploying root application (enables self-management)..."
-#kubectl apply -f "$ROOT_DIR/infrastructure/controllers/argocd/root.yaml"
+kubectl apply -f "$ROOT_DIR/infrastructure/controllers/argocd/root.yaml"
 
 echo ""
 echo "✅ ArgoCD bootstrap complete!"
