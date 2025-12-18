@@ -5,10 +5,10 @@ set -e
 
 # Worker node IPs (regular + GPU workers)
 WORKERS=(
-  "192.168.10.111"  # talos-o31-0s1 (regular worker)
-  "192.168.10.112"  # talos-w4s-zts (regular worker)
-  "192.168.10.113"  # talos-blj-72f (GPU worker)
-  "192.168.10.114"  # talos-kyk-7ek (GPU worker)
+  "192.168.86.111"  # talos-o31-0s1 (regular worker)
+  "192.168.86.112"  # talos-w4s-zts (regular worker)
+  "192.168.86.113"  # talos-blj-72f (GPU worker)
+  "192.168.86.114"  # talos-kyk-7ek (GPU worker)
 )
 
 echo "🔍 Checking disk configuration on all worker nodes..."

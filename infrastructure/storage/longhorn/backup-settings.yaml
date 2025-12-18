@@ -7,7 +7,7 @@ data:
   # S3-compatible MinIO backup configuration
   backup-target: "s3://longhorn-backups@us-east-1/"
   # Previous NFS configuration (commented out)
-  # backup-target: "nfs://192.168.10.133:/mnt/BigTank/k8s/longhornbackup"
+  # backup-target: "nfs://192.168.86.133:/mnt/BigTank/k8s/longhornbackup"
 
 # Note: longhorn-backup-credentials Secret is now managed by External Secrets
 # See: infrastructure/storage/longhorn/externalsecret.yaml

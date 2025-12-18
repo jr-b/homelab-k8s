@@ -27,7 +27,7 @@ spec:
       hostname: "*.jrb.nz"
       tls:
         certificateRefs:
-          - name: cert-vanillax
+          - name: cert-jrbnz
             kind: Secret
             group: "" # required
         # No QUIC/HTTP3 - Cloudflare Tunnel uses HTTP/2, not QUIC

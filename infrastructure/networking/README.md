@@ -38,7 +38,7 @@ This cluster uses a modern, high-performance networking stack:
 │  CNI: Pod networking (10.244.0.0/16)                       │
 │  Service LB: ClusterIP, LoadBalancer (replaces kube-proxy) │
 │  Gateway API: HTTPRoute, TLS termination                   │
-│  L2 Announcements: LoadBalancer IPs (192.168.10.49-50)    │
+│  L2 Announcements: LoadBalancer IPs (192.168.86.49-50)    │
 │  Network Policy: Security rules                            │
 └─────────────────────────────────────────────────────────────┘
                               ↓
@@ -161,8 +161,8 @@ machine:
 - More expressive API
 
 **Resources in this cluster:**
-- `gateway/gateway-internal.yaml` - Internal services (192.168.10.50)
-- `gateway/gateway-external.yaml` - External services (192.168.10.49)
+- `gateway/gateway-internal.yaml` - Internal services (192.168.86.50)
+- `gateway/gateway-external.yaml` - External services (192.168.86.49)
 
 **HTTPRoutes:**
 - ArgoCD: `argocd.jrb.nz`
@@ -176,8 +176,8 @@ machine:
 
 ```
 User Browser
-    ↓ DNS: argocd.jrb.nz → 192.168.10.50
-Cilium Gateway (192.168.10.50:443)
+    ↓ DNS: argocd.jrb.nz → 192.168.86.50
+Cilium Gateway (192.168.86.50:443)
     ↓ TLS termination
     ↓ HTTPRoute: argocd-server service
 Cilium Service LB
@@ -262,8 +262,8 @@ kubectl get ciliumloadbalancerippool -A
 **Check ARP announcements:**
 ```bash
 # From external host on same network
-ping 192.168.10.50
-arp -a | grep 192.168.10.50
+ping 192.168.86.50
+arp -a | grep 192.168.86.50
 ```
 
 ## Performance Tuning
@@ -315,14 +315,14 @@ gatewayAPI:
 - Managed by: Kubernetes API + Cilium
 
 ### LoadBalancer IPs
-- Pool: `192.168.10.49-50` (configured in `cilium/ip-pool.yaml`)
+- Pool: `192.168.86.49-50` (configured in `cilium/ip-pool.yaml`)
 - Assignment:
-  - `192.168.10.49` - gateway-external
-  - `192.168.10.50` - gateway-internal
+  - `192.168.86.49` - gateway-external
+  - `192.168.86.50` - gateway-internal
 - Managed by: Cilium L2 announcements
 
 ### Node Network
-- CIDR: `192.168.10.0/24`
+- CIDR: `192.168.86.0/24`
 - Static IPs configured in Omni machine configs
 
 ## References

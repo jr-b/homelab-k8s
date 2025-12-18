@@ -52,7 +52,7 @@ spec:
             metadata:
               name: khoj-postgres-external
               annotations:
-                lbipam.cilium.io/ips: "192.168.10.47"
+                lbipam.cilium.io/ips: "192.168.86.47"
             spec:
               type: LoadBalancer
               ports:

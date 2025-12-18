@@ -274,7 +274,7 @@ When a new version of Talos is released or system extensions in `iac/talos/talco
     ```bash
     # Example for the first control plane node
     NODE_NAME="talos-cluster-control-00"
-    NODE_IP="192.168.10.100" # Replace with your node's IP
+    NODE_IP="192.168.86.100" # Replace with your node's IP
     INSTALLER_URL=$(talhelper genurl installer -c iac/talos/talconfig.yaml -n "$NODE_NAME")
     talosctl upgrade --nodes "$NODE_IP" --image "$INSTALLER_URL"
     ```
@@ -285,7 +285,7 @@ When a new version of Talos is released or system extensions in `iac/talos/talco
     ```bash
     # Example for the GPU worker node
     NODE_NAME="talos-cluster-gpu-worker-00"
-    NODE_IP="192.168.10.200" # Replace with your node's IP
+    NODE_IP="192.168.86.200" # Replace with your node's IP
     INSTALLER_URL=$(talhelper genurl installer -c iac/talos/talconfig.yaml -n "$NODE_NAME")
     talosctl upgrade --nodes "$NODE_IP" --image "$INSTALLER_URL"
     ```
@@ -297,7 +297,7 @@ This cluster uses **TrueNAS Scale MinIO** for S3-compatible storage backups, par
 ### MinIO Setup on TrueNAS Scale
 
 1.  **Install MinIO App** in TrueNAS Scale Apps
-2.  **Access MinIO Console** at `http://192.168.10.133:9002`
+2.  **Access MinIO Console** at `http://192.168.86.133:9002`
 3.  **Configure via MinIO Client (mc)**:
 
 ```bash
@@ -366,7 +366,7 @@ Store MinIO credentials securely in 1Password:
 2.  **Add fields**:
     -   `minio_access_key`: `ABC123XYZ789EXAMPLE0`
     -   `minio_secret_key`: `ExampleSecretKey123+RandomChars/ForDocumentation`  
-    -   `minio_endpoint`: `http://192.168.10.133:9000`
+    -   `minio_endpoint`: `http://192.168.86.133:9000`
 
 ### Longhorn S3 Backup Configuration
 

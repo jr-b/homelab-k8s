@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jrb-nz-wildcard
+  namespace: gateway
+  annotations:
+    argocd.argoproj.io/sync-wave: "5" # Deploy after cert-manager and ClusterIssuer are ready
+spec:
+  secretName: cert-jrbnz
+  commonName: "*.jrb.nz"
+  dnsNames:
+    - "jrb.nz"
+    - "*.jrb.nz"
+  issuerRef:
+    name: cloudflare-cluster-issuer
+    kind: ClusterIssuer
+  # Renew 30 days before expiration (default is 30 days for Let's Encrypt 90-day certs)
+  renewBefore: 720h # 30 days
