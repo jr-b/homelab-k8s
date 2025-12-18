@@ -3,6 +3,8 @@ kind: HTTPRoute
 metadata:
   name: echo-server-route
   namespace: echo-server
+  labels:
+    external-dns: "true"
 spec:
   parentRefs:
     - group: gateway.networking.k8s.io

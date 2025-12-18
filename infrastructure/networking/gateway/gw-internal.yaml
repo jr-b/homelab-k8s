@@ -3,8 +3,14 @@ kind: Gateway
 metadata:
   name: gateway-internal
   namespace: gateway
+  labels:
+    external-dns: "true"
   annotations:
     cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
+    # External-DNS: Create A records pointing to internal gateway IP
+    external-dns.alpha.kubernetes.io/target: "192.168.86.50"
+    # Disable Cloudflare proxy for internal services (private IPs)
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
 spec:
   addresses:
   - type: IPAddress

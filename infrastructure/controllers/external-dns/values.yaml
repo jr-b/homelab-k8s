@@ -7,7 +7,7 @@ provider:
 
 # Cloudflare-specific settings
 cloudflare:
-  proxied: true # Enable Cloudflare proxy for all records
+  proxied: false # Disable global proxy - control per-record via annotations
   # API token will be provided via secret
 
 # Source Configuration - Watch Gateway API HTTPRoutes
@@ -30,8 +30,8 @@ txtPrefix: "external-dns-" # Prefix for TXT records
 # Only process HTTPRoutes with external-dns=true label
 extraArgs:
   - --label-filter=external-dns=true
-  - --gateway-label-filter=external-dns-gateway=gateway-external
-  - --cloudflare-proxied  # Enable Cloudflare proxy for all records
+  # Removed gateway filter to allow both gateway-external and gateway-internal
+  # Control proxying per-route using external-dns.alpha.kubernetes.io/cloudflare-proxied annotation
 
 # Logging
 logLevel: info

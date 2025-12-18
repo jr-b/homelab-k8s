@@ -3,6 +3,8 @@ kind: HTTPRoute
 metadata:
   name: homepage-dashboard-route
   namespace: homepage-dashboard
+  labels:
+    external-dns: "true"
 spec:
   parentRefs:
     - group: gateway.networking.k8s.io

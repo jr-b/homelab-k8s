@@ -10,6 +10,8 @@ metadata:
     cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
     # External-DNS: Create CNAME records to jrb.nz instead of A records
     external-dns.alpha.kubernetes.io/target: "jrb.nz"
+    # Enable Cloudflare proxy for external services (CDN, DDoS protection)
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
 spec:
   # No addresses - Cilium will auto-assign, but external-DNS will use target annotation for CNAME
   gatewayClassName: cilium
