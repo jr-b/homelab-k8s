@@ -11,18 +11,19 @@ spec:
       repoURL: https://github.com/jr-b/homelab-k8s.git
       revision: main
       directories:
+      # STEP 1: Only cert-manager, external-dns, gateway, and CRDs
       - path: infrastructure/controllers/cert-manager
       - path: infrastructure/controllers/external-dns
-      - path: infrastructure/controllers/intel-device-plugins
-      - path: infrastructure/controllers/node-feature-discovery
-      - path: infrastructure/networking/coredns
+      # - path: infrastructure/controllers/intel-device-plugins  # [DISABLED FOR STEP 1]
+      # - path: infrastructure/controllers/node-feature-discovery  # [DISABLED FOR STEP 1]
+      # - path: infrastructure/networking/coredns  # [DISABLED FOR STEP 1]
       - path: infrastructure/networking/gateway
-      - path: infrastructure/storage/container-registry
-      - path: infrastructure/storage/csi-driver-nfs
-      - path: infrastructure/storage/csi-driver-smb
-      - path: infrastructure/storage/local-storage
-      - path: infrastructure/storage/openebs
-      - path: infrastructure/database/*/*
+      # - path: infrastructure/storage/container-registry  # [DISABLED FOR STEP 1]
+      # - path: infrastructure/storage/csi-driver-nfs  # [DISABLED FOR STEP 1]
+      # - path: infrastructure/storage/csi-driver-smb  # [DISABLED FOR STEP 1]
+      # - path: infrastructure/storage/local-storage  # [DISABLED FOR STEP 1]
+      # - path: infrastructure/storage/openebs  # [DISABLED FOR STEP 1]
+      # - path: infrastructure/database/*/*  # [DISABLED FOR STEP 1]
       - path: infrastructure/crds
   template:
     metadata:

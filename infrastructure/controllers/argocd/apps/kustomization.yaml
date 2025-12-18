@@ -6,10 +6,10 @@ resources:
   # Wave 0: Foundation components (networking + secrets infrastructure)
   - cilium-app.yaml        # Wave 0 - Networking foundation
   - 1passwordconnect.yaml  # Wave 0 - Secret backend (required by External Secrets)
-  - external-secrets.yaml  # Wave 0 - External Secrets CRDs (required by Longhorn)
-  - longhorn-app.yaml      # Wave 1 - Storage foundation
+  - external-secrets.yaml  # Wave 0 - External Secrets CRDs
+  # - longhorn-app.yaml      # Wave 1 - Storage foundation [DISABLED FOR STEP 1]
   # ApplicationSets for automatic discovery
   - infrastructure-appset.yaml  # Wave 2
-  - monitoring-appset.yaml      # Wave 3
-  - my-apps-appset.yaml         # Wave 4
-  - garage.yaml
+  # - monitoring-appset.yaml      # Wave 3 [DISABLED FOR STEP 1]
+  # - my-apps-appset.yaml         # Wave 4 [DISABLED FOR STEP 1]
+  # - garage.yaml  # [DISABLED FOR STEP 1]
